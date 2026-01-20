@@ -1,23 +1,16 @@
---// Sentinel UI Library (Optimized Rewrite)
-
---// Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local TextService = game:GetService("TextService")
 
---// Library table
 local Library = {}
 
---// Shared TweenInfo
 local TweenFast = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 local TweenNormal = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
---// Clean previous container
 local existing = CoreGui:FindFirstChild("sentinel-container")
 if existing then existing:Destroy() end
 
---// Instance helper
 local function Create(className, properties)
     local instance = Instance.new(className)
     for prop, value in pairs(properties) do
@@ -26,19 +19,17 @@ local function Create(className, properties)
     return instance
 end
 
---// Root container
 local container = Create("Folder", {
     Name = "sentinel-container",
     Parent = CoreGui
 })
 
---// Drag handler (single InputChanged / InputEnded usage)
 local function SetupDrag(frame, target)
     local dragging = false
     local dragStart, startPos
 
     frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = target.Position
@@ -46,13 +37,13 @@ local function SetupDrag(frame, target)
     end)
 
     UserInputService.InputEnded:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+        if dragging and input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = false
         end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             local delta = input.Position - dragStart
             target.Position = UDim2.new(
                 startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -62,7 +53,6 @@ local function SetupDrag(frame, target)
     end)
 end
 
---// Notifications
 local notifications = {
     active = 0,
     max = 3,
@@ -107,19 +97,12 @@ Create("UIListLayout", {
 
 function Library:Notify(config)
     if notifications.active >= notifications.max then return end
-    if not config or not config.Title or not config.Description then
-        warn("Library:Notify requires both Title and Description parameters")
-        return
-    end
+    if not config or not config.Title or not config.Description then return end
 
     local title = config.Title
-    local desc = config.Description
+    local desc = config.Description ~= "" and config.Description or "Lorem ipsum dolor sit amet."
     local duration = config.Duration or 5
     local type = config.Type or "info"
-
-    if desc == "" then
-        desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec placerat sit amet orci."
-    end
 
     local accent = notifications.colors[type] or notifications.colors.info
     local icon = notifications.icons[type] or notifications.icons.info
@@ -170,12 +153,10 @@ function Library:Notify(config)
         Text = title,
         TextColor3 = Color3.fromRGB(255, 255, 255),
         TextSize = 13,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top,
-        TextTruncate = Enum.TextTruncate.AtEnd
+        TextXAlignment = Enum.TextXAlignment.Left
     })
 
-    local descLabel = Create("TextLabel", {
+    Create("TextLabel", {
         Name = "Description",
         Parent = content,
         BackgroundTransparency = 1,
@@ -186,8 +167,7 @@ function Library:Notify(config)
         TextColor3 = Color3.fromRGB(200, 200, 200),
         TextSize = 11,
         TextWrapped = true,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top
+        TextXAlignment = Enum.TextXAlignment.Left
     })
 
     local closeBtn = Create("ImageButton", {
@@ -213,22 +193,19 @@ function Library:Notify(config)
     local function close()
         if not notification.Parent then return end
         notifications.active = math.max(0, notifications.active - 1)
-        local closeTween = TweenService:Create(notification, TweenFast, {Size = UDim2.new(1, 0, 0, 0)})
-        closeTween:Play()
-        closeTween.Completed:Connect(function()
+        local t = TweenService:Create(notification, TweenFast, {Size = UDim2.new(1, 0, 0, 0)})
+        t:Play()
+        t.Completed:Connect(function()
             notification:Destroy()
         end)
     end
 
     closeBtn.MouseButton1Click:Connect(close)
     task.delay(duration, function()
-        if notification.Parent then
-            close()
-        end
+        if notification.Parent then close() end
     end)
 end
 
---// Main window
 function Library:Window(title)
     local ui = Create("ScreenGui", {
         Name = "sentinel-library",
@@ -583,7 +560,6 @@ function Library:Window(title)
                 Name = "Check",
                 Parent = toggleFrame,
                 BackgroundTransparency = 1,
-                Position = UDim2.new(0, 0, 0, 0),
                 Size = UDim2.new(1, 0, 1, 0),
                 Image = "rbxassetid://7812909048",
                 ImageTransparency = default and 0 or 1,
@@ -592,13 +568,11 @@ function Library:Window(title)
 
             local toggled = default or false
 
-            local function setState(value, fireCallback)
+            local function setState(value, fire)
                 toggled = value
-                TweenService:Create(toggleFrame, TweenFast, {BackgroundTransparency = toggled and 0 or 1}):Play()
-                TweenService:Create(check, TweenFast, {ImageTransparency = toggled and 0 or 1}):Play()
-                if fireCallback and callback then
-                    callback(toggled)
-                end
+                TweenService:Create(toggleFrame, TweenFast, {BackgroundTransparency = value and 0 or 1}):Play()
+                TweenService:Create(check, TweenFast, {ImageTransparency = value and 0 or 1}):Play()
+                if fire and callback then callback(value) end
             end
 
             toggle.MouseButton1Click:Connect(function()
@@ -637,12 +611,11 @@ function Library:Window(title)
 
             local lastWidth = 0
             local function updateSize(txt)
-                local contentWidth = label.AbsoluteSize.X - 20
-                if contentWidth <= 0 or contentWidth == lastWidth then return end
-                lastWidth = contentWidth
-                local textHeight = TextService:GetTextSize(txt, 14, Enum.Font.Gotham, Vector2.new(contentWidth, math.huge)).Y
-                local totalHeight = math.max(36, textHeight + 20)
-                label.Size = UDim2.new(1, -10, 0, totalHeight)
+                local width = label.AbsoluteSize.X - 20
+                if width <= 0 or width == lastWidth then return end
+                lastWidth = width
+                local textHeight = TextService:GetTextSize(txt, 14, Enum.Font.Gotham, Vector2.new(width, math.huge)).Y
+                label.Size = UDim2.new(1, -10, 0, math.max(36, textHeight + 20))
             end
 
             label:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -724,37 +697,37 @@ function Library:Window(title)
             Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = fill})
 
             local dragging = false
-            local pendingCallback = false
+            local pending = false
             local lastValue = default
             local range = max - min
             local precision = 1000000
 
-            local function round(val)
-                if increment == 0 then return val end
-                return math.floor((math.floor(val / increment + 0.5) * increment) * precision + 0.5) / precision
+            local function round(v)
+                if increment == 0 then return v end
+                return math.floor((math.floor(v / increment + 0.5) * increment) * precision + 0.5) / precision
             end
 
-            local function format(val)
-                local rounded = math.floor(val * precision + 0.5) / precision
-                local str = tostring(rounded)
-                if str:find("%.") then
-                    str = str:gsub("0+$", ""):gsub("%.$", "")
+            local function format(v)
+                local r = math.floor(v * precision + 0.5) / precision
+                local s = tostring(r)
+                if s:find("%.") then
+                    s = s:gsub("0+$", ""):gsub("%.$", "")
                 end
-                return str
+                return s
             end
 
-            local function update(percent, callNow)
-                local val = round(min + (percent * range))
+            local function update(percent, fire)
+                local val = round(min + percent * range)
                 local adj = (val - min) / range
                 fill.Size = UDim2.new(adj, 0, 1, 0)
                 valueLabel.Text = format(val)
 
                 if val ~= lastValue then
                     lastValue = val
-                    if callNow and callback then
+                    if fire and callback then
                         callback(val)
                     else
-                        pendingCallback = true
+                        pending = true
                     end
                 end
             end
@@ -765,33 +738,32 @@ function Library:Window(title)
             end
 
             bar.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragging = true
                     slide(input)
                 end
             end)
 
             UserInputService.InputEnded:Connect(function(input)
-                if dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                if dragging and input.UserInputType == Enum.UserInputType.MouseButton1 then
                     dragging = false
-                    if pendingCallback and callback then
+                    if pending and callback then
                         callback(lastValue)
-                        pendingCallback = false
+                        pending = false
                     end
                 end
             end)
 
             UserInputService.InputChanged:Connect(function(input)
-                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                     slide(input)
                 end
             end)
 
             return {
-                Set = function(_, val)
-                    val = math.clamp(val, min, max)
-                    local adj = (val - min) / range
-                    update(adj, true)
+                Set = function(_, v)
+                    v = math.clamp(v, min, max)
+                    update((v - min) / range, true)
                 end
             }
         end
@@ -882,7 +854,7 @@ function Library:Window(title)
 
             Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = choose})
 
-            local titleLabel = Create("TextLabel", {
+            Create("TextLabel", {
                 Name = "Title",
                 Parent = choose,
                 BackgroundTransparency = 1,
@@ -918,6 +890,15 @@ function Library:Window(title)
                 Size = UDim2.new(0, 16, 0, 16),
                 Image = "rbxassetid://6031090990",
                 ImageColor3 = Color3.fromRGB(166, 166, 166)
+            })
+
+            local clickArea = Create("TextButton", {
+                Name = "ClickArea",
+                Parent = choose,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 1, 0),
+                Text = "",
+                AutoButtonColor = false
             })
 
             local listFrame = Create("Frame", {
@@ -977,9 +958,7 @@ function Library:Window(title)
             local function setOpen(state)
                 isOpen = state
                 listFrame.Visible = state
-                TweenService:Create(arrow, TweenFast, {
-                    Rotation = state and 180 or 0
-                }):Play()
+                TweenService:Create(arrow, TweenFast, {Rotation = state and 180 or 0}):Play()
             end
 
             local function setCurrent(option, fireCallback)
@@ -989,7 +968,7 @@ function Library:Window(title)
                 end
             end
 
-            for _, opt in ipairs(options) do
+            local function createOption(opt)
                 local optBtn = Create("TextButton", {
                     Name = "Option",
                     Parent = listScrolling,
@@ -1019,10 +998,12 @@ function Library:Window(title)
                 end)
             end
 
-            choose.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    setOpen(not isOpen)
-                end
+            for _, opt in ipairs(options) do
+                createOption(opt)
+            end
+
+            clickArea.MouseButton1Click:Connect(function()
+                setOpen(not isOpen)
             end)
 
             if defaultOption ~= "" then
@@ -1041,33 +1022,7 @@ function Library:Window(title)
                     end
                     options = newOptions or {}
                     for _, opt in ipairs(options) do
-                        local optBtn = Create("TextButton", {
-                            Name = "Option",
-                            Parent = listScrolling,
-                            BackgroundColor3 = Color3.fromRGB(43, 43, 43),
-                            BorderSizePixel = 0,
-                            Size = UDim2.new(1, -4, 0, 26),
-                            Font = Enum.Font.Gotham,
-                            Text = opt,
-                            TextColor3 = Color3.fromRGB(255, 255, 255),
-                            TextSize = 13,
-                            AutoButtonColor = false
-                        })
-
-                        Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = optBtn})
-
-                        optBtn.MouseEnter:Connect(function()
-                            TweenService:Create(optBtn, TweenFast, {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
-                        end)
-
-                        optBtn.MouseLeave:Connect(function()
-                            TweenService:Create(optBtn, TweenFast, {BackgroundColor3 = Color3.fromRGB(43, 43, 43)}):Play()
-                        end)
-
-                        optBtn.MouseButton1Click:Connect(function()
-                            setCurrent(opt, true)
-                            setOpen(false)
-                        end)
+                        createOption(opt)
                     end
                 end
             }
