@@ -826,207 +826,207 @@ function Library:Window(title)
         end
 
         function elements:Dropdown(text, defaultOption, options, callback)
-            if type(defaultOption) == "table" then
-                callback = options
-                options = defaultOption
-                defaultOption = ""
-            end
+    if type(defaultOption) == "table" then
+        callback = options
+        options = defaultOption
+        defaultOption = ""
+    end
 
-            options = options or {}
-            defaultOption = defaultOption or ""
+    options = options or {}
+    defaultOption = defaultOption or ""
 
-            local dropdown = Create("Frame", {
-                Name = "Dropdown",
-                Parent = page,
-                BackgroundTransparency = 1,
-                BorderSizePixel = 0,
-                ClipsDescendants = false,
-                Size = UDim2.new(1, -10, 0, 36)
-            })
+    local dropdown = Create("Frame", {
+        Name = "Dropdown",
+        Parent = page,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ClipsDescendants = false,
+        Size = UDim2.new(1, -10, 0, 36)
+    })
 
-            local choose = Create("Frame", {
-                Name = "Choose",
-                Parent = dropdown,
-                BackgroundColor3 = Color3.fromRGB(35, 35, 35),
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, 0, 0, 36)
-            })
+    local choose = Create("Frame", {
+        Name = "Choose",
+        Parent = dropdown,
+        BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 36)
+    })
 
-            Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = choose})
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = choose})
 
-            Create("TextLabel", {
-                Name = "Title",
-                Parent = choose,
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 10, 0, 0),
-                Size = UDim2.new(0.5, -6, 1, 0),
-                Font = Enum.Font.Gotham,
-                Text = text or "Dropdown",
-                TextColor3 = Color3.fromRGB(255, 255, 255),
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left
-            })
+    Create("TextLabel", {
+        Name = "Title",
+        Parent = choose,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 0),
+        Size = UDim2.new(0.5, -6, 1, 0),
+        Font = Enum.Font.Gotham,
+        Text = text or "Dropdown",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left
+    })
 
-            local currentLabel = Create("TextLabel", {
-                Name = "Current",
-                Parent = choose,
-                AnchorPoint = Vector2.new(1, 0),
-                BackgroundTransparency = 1,
-                Position = UDim2.new(1, -30, 0, 0),
-                Size = UDim2.new(0.5, -6, 1, 0),
-                Font = Enum.Font.Gotham,
-                Text = defaultOption ~= "" and defaultOption or "Select",
-                TextColor3 = Color3.fromRGB(200, 200, 200),
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Right
-            })
+    local currentLabel = Create("TextLabel", {
+        Name = "Current",
+        Parent = choose,
+        AnchorPoint = Vector2.new(1, 0),
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -30, 0, 0),
+        Size = UDim2.new(0.5, -6, 1, 0),
+        Font = Enum.Font.Gotham,
+        Text = defaultOption ~= "" and defaultOption or "Select",
+        TextColor3 = Color3.fromRGB(200, 200, 200),
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Right
+    })
 
-            local arrow = Create("ImageLabel", {
-                Name = "Arrow",
-                Parent = choose,
-                AnchorPoint = Vector2.new(1, 0.5),
-                BackgroundTransparency = 1,
-                Position = UDim2.new(1, -8, 0.5, 0),
-                Size = UDim2.new(0, 16, 0, 16),
-                Image = "rbxassetid://6031090990",
-                ImageColor3 = Color3.fromRGB(166, 166, 166)
-            })
+    local arrow = Create("ImageLabel", {
+        Name = "Arrow",
+        Parent = choose,
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -8, 0.5, 0),
+        Size = UDim2.new(0, 16, 0, 16),
+        Image = "rbxassetid://6031090990",
+        ImageColor3 = Color3.fromRGB(166, 166, 166)
+    })
 
-            local clickArea = Create("TextButton", {
-                Name = "ClickArea",
-                Parent = choose,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 1, 0),
-                Text = "",
-                AutoButtonColor = false
-            })
+    local clickArea = Create("TextButton", {
+        Name = "ClickArea",
+        Parent = choose,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        AutoButtonColor = false
+    })
 
-            local listFrame = Create("Frame", {
-                Name = "ListFrame",
-                Parent = dropdown,
-                BackgroundColor3 = Color3.fromRGB(35, 35, 35),
-                BorderSizePixel = 0,
-                Position = UDim2.new(0, 0, 0, 40),
-                Size = UDim2.new(1, 0, 0, 0),
-                Visible = false,
-                ClipsDescendants = true
-            })
+    local listFrame = Create("Frame", {
+        Name = "ListFrame",
+        Parent = dropdown,
+        BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+        BorderSizePixel = 0,
+        Position = UDim2.new(0, 0, 0, 40),
+        Size = UDim2.new(1, 0, 0, 0),
+        Visible = false,
+        ClipsDescendants = true
+    })
 
-            Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = listFrame})
+    Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = listFrame})
 
-            local listScrolling = Create("ScrollingFrame", {
-                Name = "List",
-                Parent = listFrame,
-                BackgroundTransparency = 1,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, 0, 1, 0),
-                CanvasSize = UDim2.new(0, 0, 0, 0),
-                ScrollBarThickness = 2
-            })
+    local listScrolling = Create("ScrollingFrame", {
+        Name = "List",
+        Parent = listFrame,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 1, 0),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollBarThickness = 2
+    })
 
-            local listLayout = Create("UIListLayout", {
-                Parent = listScrolling,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                Padding = UDim.new(0, 2)
-            })
+    local listLayout = Create("UIListLayout", {
+        Parent = listScrolling,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 2)
+    })
 
-            Create("UIPadding", {
-                Parent = listScrolling,
-                PaddingTop = UDim.new(0, 4),
-                PaddingBottom = UDim.new(0, 4),
-                PaddingLeft = UDim.new(0, 4),
-                PaddingRight = UDim.new(0, 4)
-            })
+    Create("UIPadding", {
+        Parent = listScrolling,
+        PaddingTop = UDim.new(0, 4),
+        PaddingBottom = UDim.new(0, 4),
+        PaddingLeft = UDim.new(0, 4),
+        PaddingRight = UDim.new(0, 4)
+    })
 
-            local listUpdating = false
-            listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                if listUpdating then return end
-                listUpdating = true
-                task.defer(function()
-                    local contentSize = listLayout.AbsoluteContentSize.Y + 8
-                    local maxHeight = 120
-                    local finalHeight = math.min(contentSize, maxHeight)
-                    listScrolling.CanvasSize = UDim2.new(0, 0, 0, contentSize)
-                    listFrame.Size = UDim2.new(1, 0, 0, finalHeight)
-                    listUpdating = false
-                end)
-            end)
+    local listUpdating = false
+    listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        if listUpdating then return end
+        listUpdating = true
+        task.defer(function()
+            local contentSize = listLayout.AbsoluteContentSize.Y + 8
+            local maxHeight = 120
+            local finalHeight = math.min(contentSize, maxHeight)
+            listScrolling.CanvasSize = UDim2.new(0, 0, 0, contentSize)
+            listFrame.Size = UDim2.new(1, 0, 0, finalHeight)
+            listUpdating = false
+        end)
+    end)
 
-            local isOpen = false
+    local isOpen = false
 
-            local function setOpen(state)
-                isOpen = state
-                listFrame.Visible = state
-                TweenService:Create(arrow, TweenFast, {Rotation = state and 180 or 0}):Play()
-            end
+    local function setOpen(state)
+        isOpen = state
+        listFrame.Visible = state
+        TweenService:Create(arrow, TweenFast, {Rotation = state and 180 or 0}):Play()
+    end
 
-            local function setCurrent(option, fireCallback)
-                currentLabel.Text = option
-                if fireCallback and callback then
-                    callback(option)
+    local function setCurrent(option, fireCallback)
+        currentLabel.Text = option
+        if fireCallback and callback then
+            callback(option)
+        end
+    end
+
+    local function createOption(opt)
+        local optBtn = Create("TextButton", {
+            Name = "Option",
+            Parent = listScrolling,
+            BackgroundColor3 = Color3.fromRGB(43, 43, 43),
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, -4, 0, 26),
+            Font = Enum.Font.Gotham,
+            Text = opt,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextSize = 13,
+            AutoButtonColor = false
+        })
+
+        Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = optBtn})
+
+        optBtn.MouseEnter:Connect(function()
+            TweenService:Create(optBtn, TweenFast, {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
+        end)
+
+        optBtn.MouseLeave:Connect(function()
+            TweenService:Create(optBtn, TweenFast, {BackgroundColor3 = Color3.fromRGB(43, 43, 43)}):Play()
+        end)
+
+        optBtn.MouseButton1Click:Connect(function()
+            setCurrent(opt, true)
+            setOpen(false)
+        end)
+    end
+
+    for _, opt in ipairs(options) do
+        createOption(opt)
+    end
+
+    clickArea.MouseButton1Click:Connect(function()
+        setOpen(not isOpen)
+    end)
+
+    if defaultOption ~= "" then
+        setCurrent(defaultOption, false)
+    end
+
+    return {
+        Set = function(_, option)
+            setCurrent(option, true)
+        end,
+        Refresh = function(_, newOptions)
+            for _, child in ipairs(listScrolling:GetChildren()) do
+                if child:IsA("TextButton") then
+                    child:Destroy()
                 end
             end
-
-            local function createOption(opt)
-                local optBtn = Create("TextButton", {
-                    Name = "Option",
-                    Parent = listScrolling,
-                    BackgroundColor3 = Color3.fromRGB(43, 43, 43),
-                    BorderSizePixel = 0,
-                    Size = UDim2.new(1, -4, 0, 26),
-                    Font = Enum.Font.Gotham,
-                    Text = opt,
-                    TextColor3 = Color3.fromRGB(255, 255, 255),
-                    TextSize = 13,
-                    AutoButtonColor = false
-                })
-
-                Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = optBtn})
-
-                optBtn.MouseEnter:Connect(function()
-                    TweenService:Create(optBtn, TweenFast, {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
-                end)
-
-                optBtn.MouseLeave:Connect(function()
-                    TweenService:Create(optBtn, TweenFast, {BackgroundColor3 = Color3.fromRGB(43, 43, 43)}):Play()
-                end)
-
-                optBtn.MouseButton1Click:Connect(function()
-                    setCurrent(opt, true)
-                    setOpen(false)
-                end)
-            end
-
+            options = newOptions or {}
             for _, opt in ipairs(options) do
                 createOption(opt)
             end
-
-            clickArea.MouseButton1Click:Connect(function()
-                setOpen(not isOpen)
-            end)
-
-            if defaultOption ~= "" then
-                setCurrent(defaultOption, false)
-            end
-
-            return {
-                Set = function(_, option)
-                    setCurrent(option, true)
-                end,
-                Refresh = function(_, newOptions)
-                    for _, child in ipairs(listScrolling:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            child:Destroy()
-                        end
-                    end
-                    options = newOptions or {}
-                    for _, opt in ipairs(options) do
-                        createOption(opt)
-                    end
-                end
-            }
         end
+    }
+end
 
         return elements
     end
