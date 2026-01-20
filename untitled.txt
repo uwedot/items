@@ -868,29 +868,28 @@ function Library:Window(title)
             local dropdown = Create("Frame", {
                 Name = "Dropdown",
                 Parent = page,
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ClipsDescendants = false,
+                Size = UDim2.new(1, -10, 0, 36)
+            })
+
+            local choose = Create("Frame", {
+                Name = "Choose",
+                Parent = dropdown,
                 BackgroundColor3 = Color3.fromRGB(35, 35, 35),
                 BorderSizePixel = 0,
-                Size = UDim2.new(1, -10, 0, 36),
-                ClipsDescendants = false
+                Size = UDim2.new(1, 0, 0, 36)
             })
 
-            Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = dropdown})
-
-            local header = Create("TextButton", {
-                Name = "Header",
-                Parent = dropdown,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 36),
-                AutoButtonColor = false,
-                Text = ""
-            })
+            Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = choose})
 
             local title = Create("TextLabel", {
                 Name = "Title",
-                Parent = header,
+                Parent = choose,
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0, 10, 0, 0),
-                Size = UDim2.new(1, -80, 1, 0),
+                Size = UDim2.new(1, -46, 1, 0),
                 Font = Enum.Font.Gotham,
                 Text = text or "Dropdown",
                 TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -898,265 +897,148 @@ function Library:Window(title)
                 TextXAlignment = Enum.TextXAlignment.Left
             })
 
-            local selectedLabel = Create("TextLabel", {
-                Name = "Selected",
-                Parent = header,
-                AnchorPoint = Vector2.new(1, 0.5),
-                BackgroundTransparency = 1,
-                Position = UDim2.new(1, -35, 0.5, 0),
-                Size = UDim2.new(0, 100, 1, 0),
-                Font = Enum.Font.Gotham,
-                Text = defaultOption ~= "" and defaultOption or "None",
-                TextColor3 = Color3.fromRGB(12, 59, 161),
-                TextSize = 13,
-                TextXAlignment = Enum.TextXAlignment.Right,
-                TextTruncate = Enum.TextTruncate.AtEnd
-            })
-
-            local arrow = Create("ImageLabel", {
+            local arrow = Create("ImageButton", {
                 Name = "Arrow",
-                Parent = header,
+                Parent = choose,
                 AnchorPoint = Vector2.new(1, 0.5),
                 BackgroundTransparency = 1,
                 Position = UDim2.new(1, -10, 0.5, 0),
-                Size = UDim2.new(0, 16, 0, 16),
+                Size = UDim2.new(0, 20, 0, 20),
                 Image = "rbxassetid://3926307971",
                 ImageColor3 = Color3.fromRGB(12, 59, 161),
                 ImageRectOffset = Vector2.new(324, 524),
-                ImageRectSize = Vector2.new(36, 36),
-                Rotation = 0
+                ImageRectSize = Vector2.new(36, 36)
             })
 
-            local optionsContainer = Create("Frame", {
-                Name = "OptionsContainer",
-                Parent = dropdown,
-                BackgroundColor3 = Color3.fromRGB(28, 28, 28),
+            local optionHolder = Create("ScrollingFrame", {
+                Name = "OptionHolder",
+                Parent = page,
+                BackgroundColor3 = Color3.fromRGB(35, 35, 35),
                 BorderSizePixel = 0,
-                Position = UDim2.new(0, 0, 0, 40),
-                Size = UDim2.new(1, 0, 0, 0),
-                ClipsDescendants = true,
-                ZIndex = 10
-            })
-
-            Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = optionsContainer})
-
-            Create("UIStroke", {
-                Parent = optionsContainer,
-                Color = Color3.fromRGB(12, 59, 161),
-                Thickness = 1,
-                Transparency = 0.7,
-                LineJoinMode = Enum.LineJoinMode.Round
-            })
-
-            local optionsScroll = Create("ScrollingFrame", {
-                Name = "OptionsScroll",
-                Parent = optionsContainer,
-                BackgroundTransparency = 1,
-                BorderSizePixel = 0,
-                Size = UDim2.new(1, 0, 1, 0),
+                Position = UDim2.new(0, 0, 0, 0),
+                Size = UDim2.new(1, -10, 0, 0),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 4,
-                ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161)
+                ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161),
+                Visible = false,
+                ZIndex = 100
             })
 
-            local optionsList = Create("UIListLayout", {
-                Parent = optionsScroll,
+            Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = optionHolder})
+
+            local optionList = Create("UIListLayout", {
+                Parent = optionHolder,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 SortOrder = Enum.SortOrder.LayoutOrder,
-                Padding = UDim.new(0, 2)
+                Padding = UDim.new(0, 4)
             })
 
             Create("UIPadding", {
-                Parent = optionsScroll,
-                PaddingTop = UDim.new(0, 6),
-                PaddingBottom = UDim.new(0, 6),
-                PaddingLeft = UDim.new(0, 6),
-                PaddingRight = UDim.new(0, 6)
+                Parent = optionHolder,
+                PaddingTop = UDim.new(0, 8),
+                PaddingLeft = UDim.new(0, 8),
+                PaddingRight = UDim.new(0, 8),
+                PaddingBottom = UDim.new(0, 8)
             })
 
-            local isOpen = false
+            -- Update canvas size and constrain max height
+            local dropdownResizeDebounce
+            optionList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                if dropdownResizeDebounce then dropdownResizeDebounce:Cancel() end
+                dropdownResizeDebounce = task.delay(0.05, function()
+                    local contentHeight = optionList.AbsoluteContentSize.Y + 16
+                    local maxHeight = 150 -- Maximum dropdown height
+                    local actualHeight = math.min(contentHeight, maxHeight)
+                    
+                    optionHolder.Size = UDim2.new(1, -10, 0, actualHeight)
+                    optionHolder.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+                end)
+            end)
+
+            local dropped = false
             local currentOption = defaultOption
             local dropdownText = text or "Dropdown"
-            local maxVisibleOptions = 5
-            local optionHeight = 32
 
-            -- Update canvas size
-            local function updateCanvasSize()
-                local contentHeight = optionsList.AbsoluteContentSize.Y + 12
-                optionsScroll.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
-            end
-
-            optionsList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
-
-            -- Initialize with default
             if defaultOption ~= "" and table.find(options, defaultOption) then
-                if callback then 
-                    task.spawn(callback, defaultOption)
-                end
-            end
-
-            local function closeDropdown()
-                if not isOpen then return end
-                isOpen = false
-                
-                local targetHeight = 0
-                TweenService:Create(optionsContainer, TweenFast, {
-                    Size = UDim2.new(1, 0, 0, targetHeight)
-                }):Play()
-                
-                TweenService:Create(arrow, TweenFast, {Rotation = 0}):Play()
-                
-                task.delay(0.15, function()
-                    dropdown.Size = UDim2.new(1, -10, 0, 36)
-                end)
-            end
-
-            local function openDropdown()
-                if isOpen then return end
-                isOpen = true
-                
-                local numOptions = #optionsScroll:GetChildren() - 2 -- Exclude UIListLayout and UIPadding
-                local visibleOptions = math.min(numOptions, maxVisibleOptions)
-                local targetHeight = math.min(visibleOptions * optionHeight + 12, 180)
-                
-                dropdown.Size = UDim2.new(1, -10, 0, 36 + targetHeight + 4)
-                
-                TweenService:Create(optionsContainer, TweenNormal, {
-                    Size = UDim2.new(1, 0, 0, targetHeight)
-                }):Play()
-                
-                TweenService:Create(arrow, TweenNormal, {Rotation = 180}):Play()
-            end
-
-            local function createOption(optionText)
-                local optionBtn = Create("TextButton", {
-                    Name = "Option",
-                    Parent = optionsScroll,
-                    BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-                    BackgroundTransparency = currentOption == optionText and 0 or 0.3,
-                    BorderSizePixel = 0,
-                    Size = UDim2.new(1, -12, 0, optionHeight - 2),
-                    AutoButtonColor = false,
-                    Font = Enum.Font.Gotham,
-                    Text = optionText,
-                    TextColor3 = currentOption == optionText and Color3.fromRGB(17, 85, 232) or Color3.fromRGB(255, 255, 255),
-                    TextSize = 13,
-                    TextXAlignment = Enum.TextXAlignment.Left
-                })
-
-                Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = optionBtn})
-                
-                Create("UIPadding", {
-                    Parent = optionBtn,
-                    PaddingLeft = UDim.new(0, 10)
-                })
-
-                -- Hover effect
-                optionBtn.MouseEnter:Connect(function()
-                    if currentOption ~= optionText then
-                        TweenService:Create(optionBtn, TweenFast, {
-                            BackgroundTransparency = 0,
-                            BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-                        }):Play()
-                    end
-                end)
-
-                optionBtn.MouseLeave:Connect(function()
-                    if currentOption ~= optionText then
-                        TweenService:Create(optionBtn, TweenFast, {
-                            BackgroundTransparency = 0.3,
-                            BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                        }):Play()
-                    end
-                end)
-
-                -- Click handler
-                optionBtn.MouseButton1Click:Connect(function()
-                    -- Update all options appearance
-                    for _, child in ipairs(optionsScroll:GetChildren()) do
-                        if child:IsA("TextButton") and child.Name == "Option" then
-                            if child.Text == optionText then
-                                child.BackgroundTransparency = 0
-                                child.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                                child.TextColor3 = Color3.fromRGB(17, 85, 232)
-                            else
-                                child.BackgroundTransparency = 0.3
-                                child.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                                child.TextColor3 = Color3.fromRGB(255, 255, 255)
-                            end
-                        end
-                    end
-
-                    currentOption = optionText
-                    selectedLabel.Text = optionText
-                    
-                    if callback then
-                        task.spawn(callback, optionText)
-                    end
-                    
-                    closeDropdown()
-                end)
-
-                return optionBtn
+                if callback then callback(defaultOption) end
+                title.Text = dropdownText .. ": " .. defaultOption
             end
 
             local function refresh(newOpts)
                 newOpts = newOpts or {}
 
-                -- Clear existing options
-                for _, child in ipairs(optionsScroll:GetChildren()) do
+                -- Clear existing options efficiently
+                for _, child in ipairs(optionHolder:GetChildren()) do
                     if child:IsA("TextButton") then
                         child:Destroy()
                     end
                 end
 
                 if #newOpts == 0 then
-                    local noOpt = Create("TextLabel", {
-                        Name = "NoOptions",
-                        Parent = optionsScroll,
-                        BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-                        BackgroundTransparency = 0.3,
+                    local noOpt = Create("TextButton", {
+                        Name = "NoOption",
+                        Parent = optionHolder,
+                        BackgroundColor3 = Color3.fromRGB(52, 52, 52),
                         BorderSizePixel = 0,
-                        Size = UDim2.new(1, -12, 0, optionHeight - 2),
-                        Font = Enum.Font.GothamItalic,
-                        Text = "No options available",
+                        Size = UDim2.new(1, -16, 0, 30),
+                        Font = Enum.Font.Gotham,
+                        Text = "No Options Available",
                         TextColor3 = Color3.fromRGB(150, 150, 150),
-                        TextSize = 13
+                        TextSize = 14,
+                        AutoButtonColor = false
                     })
                     Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = noOpt})
                 else
                     for _, opt in ipairs(newOpts) do
-                        createOption(opt)
+                        local btn = Create("TextButton", {
+                            Name = "Option",
+                            Parent = optionHolder,
+                            BackgroundColor3 = Color3.fromRGB(10, 49, 134),
+                            BorderSizePixel = 0,
+                            Size = UDim2.new(1, -16, 0, 30),
+                            AutoButtonColor = false,
+                            Font = Enum.Font.Gotham,
+                            Text = opt,
+                            TextColor3 = Color3.fromRGB(255, 255, 255),
+                            TextSize = 14
+                        })
+
+                        Create("UICorner", {CornerRadius = UDim.new(0, 6), Parent = btn})
+
+                        btn.MouseButton1Click:Connect(function()
+                            if callback then callback(opt) end
+                            currentOption = opt
+                            title.Text = dropdownText .. ": " .. opt
+                            dropped = false
+                            optionHolder.Visible = false
+                            arrow.Rotation = 0
+                        end)
                     end
                 end
-
-                updateCanvasSize()
             end
 
             refresh(options)
 
-            -- Toggle dropdown
-            header.MouseButton1Click:Connect(function()
-                if isOpen then
-                    closeDropdown()
+            arrow.MouseButton1Click:Connect(function()
+                dropped = not dropped
+
+                if dropped then
+                    optionHolder.Visible = true
+                    arrow.Rotation = 180
+
+                    task.wait(0.01)
+
+                    local choosePos = choose.AbsolutePosition
+                    local chooseSize = choose.AbsoluteSize
+                    local pagePos = page.AbsolutePosition
+
+                    optionHolder.Position = UDim2.new(
+                        0, choosePos.X - pagePos.X,
+                        0, (choosePos.Y - pagePos.Y) + chooseSize.Y + 5
+                    )
                 else
-                    openDropdown()
-                end
-            end)
-
-            -- Close dropdown when clicking outside
-            UserInputService.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    if isOpen then
-                        local mousePos = UserInputService:GetMouseLocation()
-                        local dropdownPos = dropdown.AbsolutePosition
-                        local dropdownSize = dropdown.AbsoluteSize
-
-                        if mousePos.X < dropdownPos.X or mousePos.X > dropdownPos.X + dropdownSize.X or
-                           mousePos.Y < dropdownPos.Y or mousePos.Y > dropdownPos.Y + dropdownSize.Y then
-                            closeDropdown()
-                        end
-                    end
+                    optionHolder.Visible = false
+                    arrow.Rotation = 0
                 end
             end)
 
@@ -1164,61 +1046,22 @@ function Library:Window(title)
                 Refresh = function(_, newOpts)
                     options = newOpts or {}
                     refresh(options)
-                    if not table.find(options, currentOption) then
-                        currentOption = ""
-                        selectedLabel.Text = "None"
-                    end
                 end,
-                
                 Add = function(_, option)
                     if not table.find(options, option) then
                         table.insert(options, option)
-                        createOption(option)
-                        updateCanvasSize()
+                        refresh(options)
                     end
                 end,
-                
                 Remove = function(_, option)
                     local index = table.find(options, option)
                     if index then
                         table.remove(options, index)
-                        
-                        for _, child in ipairs(optionsScroll:GetChildren()) do
-                            if child:IsA("TextButton") and child.Text == option then
-                                child:Destroy()
-                                break
-                            end
-                        end
-                        
                         if currentOption == option then
                             currentOption = ""
-                            selectedLabel.Text = "None"
+                            title.Text = dropdownText
                         end
-                        
-                        updateCanvasSize()
-                    end
-                end,
-                
-                Set = function(_, option)
-                    if table.find(options, option) then
-                        currentOption = option
-                        selectedLabel.Text = option
-                        
-                        for _, child in ipairs(optionsScroll:GetChildren()) do
-                            if child:IsA("TextButton") and child.Name == "Option" then
-                                if child.Text == option then
-                                    child.BackgroundTransparency = 0
-                                    child.TextColor3 = Color3.fromRGB(17, 85, 232)
-                                else
-                                    child.BackgroundTransparency = 0.3
-                                    child.TextColor3 = Color3.fromRGB(255, 255, 255)
-                                end
-                            end
-                        end
-                        
-                        if callback then
-                            task.spawn(callback, option)
-                        end
+                        refresh(options)
                     end
                 end
             }
