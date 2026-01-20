@@ -949,7 +949,8 @@ function Library:Window(title)
                 dropdownResizeDebounce = task.delay(0.05, function()
                     local contentHeight = optionList.AbsoluteContentSize.Y + 16
                     local maxHeight = 150 -- Maximum dropdown height
-                    local actualHeight = math.min(contentHeight, maxHeight)
+                    local minHeight = 0 -- Allow it to be as small as needed
+                    local actualHeight = math.clamp(contentHeight, minHeight, maxHeight)
                     
                     optionHolder.Size = UDim2.new(1, -10, 0, actualHeight)
                     optionHolder.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
@@ -981,7 +982,7 @@ function Library:Window(title)
                         Parent = optionHolder,
                         BackgroundColor3 = Color3.fromRGB(52, 52, 52),
                         BorderSizePixel = 0,
-                        Size = UDim2.new(1, -16, 0, 30),
+                        Size = UDim2.new(1, -16, 0, 36),
                         Font = Enum.Font.Gotham,
                         Text = "No Options Available",
                         TextColor3 = Color3.fromRGB(150, 150, 150),
@@ -996,7 +997,7 @@ function Library:Window(title)
                             Parent = optionHolder,
                             BackgroundColor3 = Color3.fromRGB(10, 49, 134),
                             BorderSizePixel = 0,
-                            Size = UDim2.new(1, -16, 0, 30),
+                            Size = UDim2.new(1, -16, 0, 36),
                             AutoButtonColor = false,
                             Font = Enum.Font.Gotham,
                             Text = opt,
