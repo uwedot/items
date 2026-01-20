@@ -936,10 +936,10 @@ function Library:Window(title)
 
             Create("UIPadding", {
                 Parent = optionHolder,
-                PaddingTop = UDim.new(0, 8),
-                PaddingLeft = UDim.new(0, 8),
-                PaddingRight = UDim.new(0, 8),
-                PaddingBottom = UDim.new(0, 8)
+                PaddingTop = UDim.new(0, 6),
+                PaddingLeft = UDim.new(0, 6),
+                PaddingRight = UDim.new(0, 6),
+                PaddingBottom = UDim.new(0, 6)
             })
 
             -- Update canvas size and constrain max height
@@ -947,10 +947,9 @@ function Library:Window(title)
             optionList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 if dropdownResizeDebounce then dropdownResizeDebounce:Cancel() end
                 dropdownResizeDebounce = task.delay(0.05, function()
-                    local contentHeight = optionList.AbsoluteContentSize.Y + 16
+                    local contentHeight = optionList.AbsoluteContentSize.Y + 12
                     local maxHeight = 150 -- Maximum dropdown height
-                    local minHeight = 0 -- Allow it to be as small as needed
-                    local actualHeight = math.clamp(contentHeight, minHeight, maxHeight)
+                    local actualHeight = math.min(contentHeight, maxHeight)
                     
                     optionHolder.Size = UDim2.new(1, -10, 0, actualHeight)
                     optionHolder.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
@@ -982,7 +981,7 @@ function Library:Window(title)
                         Parent = optionHolder,
                         BackgroundColor3 = Color3.fromRGB(52, 52, 52),
                         BorderSizePixel = 0,
-                        Size = UDim2.new(1, -16, 0, 36),
+                        Size = UDim2.new(1, -16, 0, 30),
                         Font = Enum.Font.Gotham,
                         Text = "No Options Available",
                         TextColor3 = Color3.fromRGB(150, 150, 150),
@@ -997,7 +996,7 @@ function Library:Window(title)
                             Parent = optionHolder,
                             BackgroundColor3 = Color3.fromRGB(10, 49, 134),
                             BorderSizePixel = 0,
-                            Size = UDim2.new(1, -16, 0, 36),
+                            Size = UDim2.new(1, -16, 0, 30),
                             AutoButtonColor = false,
                             Font = Enum.Font.Gotham,
                             Text = opt,
