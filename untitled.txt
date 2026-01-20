@@ -920,6 +920,7 @@ function Library:Window(title)
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 4,
                 ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161),
+                ScrollingDirection = Enum.ScrollingDirection.Y,
                 Visible = false,
                 ZIndex = 100
             })
