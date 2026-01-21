@@ -865,16 +865,12 @@ function Library:Window(title)
             options = options or {}
             defaultOption = defaultOption or ""
 
-            local dropdown = Create("ScrollingFrame", {
+            local dropdown = Create("Frame", {
                 Name = "Dropdown",
                 Parent = page,
                 BackgroundColor3 = Color3.fromRGB(35, 35, 35),
                 BorderSizePixel = 0,
                 Size = UDim2.new(1, -10, 0, 36),
-                CanvasSize = UDim2.new(0, 0, 0, 0),
-                ScrollBarThickness = 4,
-                ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161),
-                ScrollingDirection = Enum.ScrollingDirection.Y,
                 ClipsDescendants = true,
                 ZIndex = 10
             })
@@ -920,12 +916,16 @@ function Library:Window(title)
                 ZIndex = 11
             })
 
-            local optionsContainer = Create("Frame", {
+            local optionsContainer = Create("ScrollingFrame", {
                 Name = "OptionsContainer",
                 Parent = dropdown,
                 BackgroundTransparency = 1,
                 Position = UDim2.new(0, 0, 0, 42),
                 Size = UDim2.new(1, 0, 1, -42),
+                CanvasSize = UDim2.new(0, 0, 0, 0),
+                ScrollBarThickness = 4,
+                ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161),
+                ScrollingDirection = Enum.ScrollingDirection.Y,
                 Visible = false,
                 ZIndex = 10
             })
@@ -953,11 +953,12 @@ function Library:Window(title)
                     if not optionsContainer.Visible then return end
                     
                     local contentHeight = optionList.AbsoluteContentSize.Y + 12
+                    optionsContainer.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+                    
                     local maxDropdownHeight = 150
                     local totalHeight = 42 + math.min(contentHeight, maxDropdownHeight)
                     
                     dropdown.Size = UDim2.new(1, -10, 0, totalHeight)
-                    dropdown.CanvasSize = UDim2.new(0, 0, 0, 42 + contentHeight)
                 end)
             end)
 
@@ -1020,7 +1021,6 @@ function Library:Window(title)
                             dropped = false
                             optionsContainer.Visible = false
                             dropdown.Size = UDim2.new(1, -10, 0, 36)
-                            dropdown.CanvasSize = UDim2.new(0, 0, 0, 0)
                             arrow.Rotation = 0
                         end)
                     end
@@ -1037,14 +1037,22 @@ function Library:Window(title)
                 if dropped then
                     -- Trigger resize
                     local contentHeight = optionList.AbsoluteContentSize.Y + 12
+                    optionsContainer.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+                    
                     local maxDropdownHeight = 150
                     local totalHeight = 42 + math.min(contentHeight, maxDropdownHeight)
                     
                     dropdown.Size = UDim2.new(1, -10, 0, totalHeight)
-                    dropdown.CanvasSize = UDim2.new(0, 0, 0, 42 + contentHeight)
+                    
+                    -- Update page canvas size
+                    task.wait(0.05)
+                    page.CanvasSize = UDim2.new(0, 0, 0, pageList.AbsoluteContentSize.Y + 16)
                 else
                     dropdown.Size = UDim2.new(1, -10, 0, 36)
-                    dropdown.CanvasSize = UDim2.new(0, 0, 0, 0)
+                    
+                    -- Update page canvas size
+                    task.wait(0.05)
+                    page.CanvasSize = UDim2.new(0, 0, 0, pageList.AbsoluteContentSize.Y + 16)
                 end
             end)
 
