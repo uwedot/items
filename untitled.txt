@@ -912,7 +912,7 @@ function Library:Window(title)
 
             local optionHolder = Create("ScrollingFrame", {
                 Name = "OptionHolder",
-                Parent = page,
+                Parent = ui,
                 BackgroundColor3 = Color3.fromRGB(35, 35, 35),
                 BorderSizePixel = 0,
                 Position = UDim2.new(0, 0, 0, 0),
