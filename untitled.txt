@@ -871,7 +871,8 @@ function Library:Window(title)
                 BackgroundTransparency = 1,
                 BorderSizePixel = 0,
                 ClipsDescendants = false,
-                Size = UDim2.new(1, -10, 0, 36)
+                Size = UDim2.new(1, -10, 0, 36),
+                ZIndex = 1
             })
 
             local choose = Create("Frame", {
@@ -915,7 +916,7 @@ function Library:Window(title)
                 Parent = dropdown,
                 BackgroundColor3 = Color3.fromRGB(35, 35, 35),
                 BorderSizePixel = 0,
-                Position = UDim2.new(0, 0, 0, 0),
+                Position = UDim2.new(0, 0, 0, 41),
                 Size = UDim2.new(1, 0, 0, 0),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 4,
@@ -954,8 +955,10 @@ function Library:Window(title)
                     optionHolder.Size = UDim2.new(1, 0, 0, actualHeight)
                     optionHolder.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
                     
-                    -- Update dropdown frame to accommodate the holder
-                    dropdown.Size = UDim2.new(1, -10, 0, dropped and (36 + actualHeight + 5) or 36)
+                    -- Update dropdown container size to include the opened menu
+                    if dropped then
+                        dropdown.Size = UDim2.new(1, -10, 0, 36 + actualHeight + 5)
+                    end
                 end)
             end)
 
@@ -1015,6 +1018,7 @@ function Library:Window(title)
                             title.Text = dropdownText .. ": " .. opt
                             dropped = false
                             optionHolder.Visible = false
+                            dropdown.Size = UDim2.new(1, -10, 0, 36)
                             arrow.Rotation = 0
                         end)
                     end
@@ -1030,18 +1034,14 @@ function Library:Window(title)
                     optionHolder.Visible = true
                     arrow.Rotation = 180
                     
-                    task.wait(0.01)
-                    
-                    -- Position the holder below the choose button
-                    optionHolder.Position = UDim2.new(0, 0, 0, 41)
-                    
-                    -- Expand dropdown frame size
+                    -- Wait for size to update then expand dropdown container
+                    task.wait(0.06)
                     local holderHeight = optionHolder.AbsoluteSize.Y
                     dropdown.Size = UDim2.new(1, -10, 0, 36 + holderHeight + 5)
                 else
                     optionHolder.Visible = false
-                    arrow.Rotation = 0
                     dropdown.Size = UDim2.new(1, -10, 0, 36)
+                    arrow.Rotation = 0
                 end
             end)
 
