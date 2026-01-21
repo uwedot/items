@@ -923,8 +923,7 @@ function Library:Window(title)
                 Position = UDim2.new(0, 0, 0, 42),
                 Size = UDim2.new(1, 0, 1, -42),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
-                ScrollBarThickness = 4,
-                ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161),
+                ScrollBarThickness = 0,
                 ScrollingDirection = Enum.ScrollingDirection.Y,
                 Visible = false,
                 ZIndex = 10
@@ -969,6 +968,8 @@ function Library:Window(title)
             if defaultOption ~= "" and table.find(options, defaultOption) then
                 if callback then callback(defaultOption) end
                 title.Text = dropdownText .. ": " .. defaultOption
+            else
+                title.Text = dropdownText .. ": None"
             end
 
             local function refresh(newOpts)
@@ -1073,7 +1074,7 @@ function Library:Window(title)
                         table.remove(options, index)
                         if currentOption == option then
                             currentOption = ""
-                            title.Text = dropdownText
+                            title.Text = dropdownText .. ": None"
                         end
                         refresh(options)
                     end
