@@ -912,11 +912,11 @@ function Library:Window(title)
 
             local optionHolder = Create("ScrollingFrame", {
                 Name = "OptionHolder",
-                Parent = ui,
+                Parent = dropdown,
                 BackgroundColor3 = Color3.fromRGB(35, 35, 35),
                 BorderSizePixel = 0,
                 Position = UDim2.new(0, 0, 0, 0),
-                Size = UDim2.new(1, -10, 0, 0),
+                Size = UDim2.new(1, 0, 0, 0),
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 4,
                 ScrollBarImageColor3 = Color3.fromRGB(12, 59, 161),
@@ -951,8 +951,11 @@ function Library:Window(title)
                     local maxHeight = 150 -- Maximum dropdown height
                     local actualHeight = math.min(contentHeight, maxHeight)
                     
-                    optionHolder.Size = UDim2.new(1, -10, 0, actualHeight)
+                    optionHolder.Size = UDim2.new(1, 0, 0, actualHeight)
                     optionHolder.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+                    
+                    -- Update dropdown frame to accommodate the holder
+                    dropdown.Size = UDim2.new(1, -10, 0, dropped and (36 + actualHeight + 5) or 36)
                 end)
             end)
 
@@ -1026,20 +1029,19 @@ function Library:Window(title)
                 if dropped then
                     optionHolder.Visible = true
                     arrow.Rotation = 180
-
+                    
                     task.wait(0.01)
-
-                    local choosePos = choose.AbsolutePosition
-                    local chooseSize = choose.AbsoluteSize
-                    local pagePos = page.AbsolutePosition
-
-                    optionHolder.Position = UDim2.new(
-                        0, choosePos.X - pagePos.X,
-                        0, (choosePos.Y - pagePos.Y) + chooseSize.Y + 5
-                    )
+                    
+                    -- Position the holder below the choose button
+                    optionHolder.Position = UDim2.new(0, 0, 0, 41)
+                    
+                    -- Expand dropdown frame size
+                    local holderHeight = optionHolder.AbsoluteSize.Y
+                    dropdown.Size = UDim2.new(1, -10, 0, 36 + holderHeight + 5)
                 else
                     optionHolder.Visible = false
                     arrow.Rotation = 0
+                    dropdown.Size = UDim2.new(1, -10, 0, 36)
                 end
             end)
 
